@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from app.api.v1.endpoints import projects, keys, usage, billing
+from app.api.v1.api_v1 import api_router
 
 app = FastAPI()
+app.include_router(api_router, prefix="/api/v1")
 
-app.include_router(projects.router, prefix="/dashboard/projects", tags=["projects"])
-app.include_router(keys.router, prefix="/dashboard/projects", tags=["keys"])
-app.include_router(usage.router, prefix="/dashboard", tags=["usage"])
-app.include_router(billing.router, prefix="/dashboard", tags=["billing"])
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8080, reload=True)
