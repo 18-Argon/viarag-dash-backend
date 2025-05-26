@@ -31,7 +31,7 @@ viarag_dashboard_backend/
 │   ├── core/               # Config, pricing logic, auth
 │   ├── db/
 │   │   ├── sql/            # Raw .sql table definitions
-│   │   ├── init_db.py      # Load schema into the database
+│   │   ├── initialize_db.py      # Load schema into the database
 │   │   └── session.py      # DB connection handling
 │   ├── schemas/            # Pydantic models
 │   ├── services/           # Business logic for all endpoints
@@ -70,7 +70,7 @@ pip install -r requirements.txt
 ### 4. Initialize the Database
 
 ```bash
-python app/db/init_db.py
+python app/db/initialize_db.py
 ```
 
 This runs the `.sql` files in `app/db/sql/` to create tables.

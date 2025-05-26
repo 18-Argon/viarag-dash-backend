@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from app.api.v1.api_v1 import api_router
+from app.core.config import initialize_db
+
+initialize_db()
 
 app = FastAPI()
 app.include_router(api_router, prefix="/api/v1")
