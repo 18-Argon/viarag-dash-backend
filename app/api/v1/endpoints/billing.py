@@ -23,3 +23,8 @@ async def get_billing(
         "total_tokens": total_tokens,
         "total_cost": compute_price(total_tokens)
     }
+
+@router.post("/internal/billing/add", dependencies=[Depends(get_current_user())])
+async def add_billing_entry():
+    # your billing logic here
+    return {"status": "success", "message": "Billing entry added"}
