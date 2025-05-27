@@ -1,30 +1,33 @@
-from fastapi import APIRouter, Query, Depends, HTTPException
-from app.models.billing_model import BillingSummary
-from app.core.pricing import compute_price
+from fastapi import APIRouter, Depends, Query, HTTPException
 from app.core.dependencies import get_current_user
+from app.services import billing_service, project_service
 
 router = APIRouter()
 
+@router.get("/billing/summary")
+def billing_summary(project_id: str = Query(...), current_user=Depends(get_current_user)):
+    user_projects = project_service.get_user_projects(current_user["user_id"])
+    if not any(p.id == project_id for p in user_projects):
+        raise HTTPException(status_code=403, detail="Unauthorized project access")
+    return billing_service.get_billing_summary(project_id)
 
-@router.get("/billing", response_model=BillingSummary)
-async def get_billing(
-        project_id: str = Query(...),
-        current_user=Depends(get_current_user)
-):
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+@router.get("/billing/by-day")
+def billing_by_day(project_id: str = Query(...), current_user=Depends(get_current_user)):
+    user_projects = project_service.get_user_projects(current_user["user_id"])
+    if not any(p.id == project_id for p in user_projects):
+        raise HTTPException(status_code=403, detail="Unauthorized project access")
+    return billing_service.get_billing_by_day(project_id)
 
-    user_id = current_user["user_id"]
+@router.get("/billing/by-model")
+def billing_by_model(project_id: str = Query(...), current_user=Depends(get_current_user)):
+    user_projects = project_service.get_user_projects(current_user["user_id"])
+    if not any(p.id == project_id for p in user_projects):
+        raise HTTPException(status_code=403, detail="Unauthorized project access")
+    return billing_service.get_billing_by_model(project_id)
 
-    # TODO: Verify project belongs to user_id
-    total_tokens = 123456  # Replace with DB query filtering by user_id + project_id
-    return {
-        "project_id": project_id,
-        "total_tokens": total_tokens,
-        "total_cost": compute_price(total_tokens)
-    }
-
-@router.post("/internal/billing/add", dependencies=[Depends(get_current_user())])
-async def add_billing_entry():
-    # your billing logic here
-    return {"status": "success", "message": "Billing entry added"}
+@router.get("/billing/by-endpoint")
+def billing_by_endpoint(project_id: str = Query(...), current_user=Depends(get_current_user)):
+    user_projects = project_service.get_user_projects(current_user["user_id"])
+    if not any(p.id == project_id for p in user_projects):
+        raise HTTPException(status_code=403, detail="Unauthorized project access")
+    return billing_service.get_billing_by_endpoint(project_id)
