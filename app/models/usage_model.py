@@ -16,5 +16,4 @@ class UsageLogOut(BaseModel):
     token_type: str
     price_per_1k: float
     tokens_used: int
-    success: bool
     timestamp: str
