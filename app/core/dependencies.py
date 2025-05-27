@@ -6,9 +6,11 @@ from app.core.config import INTERNAL_BILLING_SECRET
 security = HTTPBearer(auto_error=False)
 
 # --- Internal-only Auth ---
-def require_internal_auth(authorization: str = Header(...)):
-    if authorization == f"Bearer {INTERNAL_BILLING_SECRET}":
-        return {"user_id": "internal", "email": "internal@system.local"}
+def require_internal_auth(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if credentials:
+        token = credentials.credentials
+        if token == INTERNAL_BILLING_SECRET:
+            return {"user_id": "internal", "email": "internal@system.local"}
     raise HTTPException(status_code=403, detail="Unauthorized: internal secret required")
 
 # --- Firebase Authenticated User ---

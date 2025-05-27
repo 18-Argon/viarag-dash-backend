@@ -6,7 +6,7 @@ class UsageLogCreate(BaseModel):
     endpoint: str
     token_type: str
     tokens_used: int
-    success: bool
+    # success: bool
 
 class UsageLogOut(BaseModel):
     id: int

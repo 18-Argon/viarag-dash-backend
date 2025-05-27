@@ -11,26 +11,27 @@ def log_usage(log: UsageLogCreate):
     db = get_connection()
     try:
         timestamp = datetime.utcnow().isoformat()
-        price_per_1k = get_current_rate(model=log.model, endpoint=log.endpoint)
+        price_per_1k = get_current_rate(token_type=log.token_type, endpoint=log.endpoint)
         db.execute(
             """
             INSERT
             INTO
             usage_logs(
                 api_key_id, project_id, endpoint, token_type, tokens_used,
-                success, timestamp, price_per_1k
+                timestamp, price_per_1k
             )
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 log.api_key_id, log.project_id, log.endpoint, log.token_type,
-                log.tokens_used, log.success, timestamp, price_per_1k
+                log.tokens_used, timestamp, price_per_1k
             )
         )
         db.commit()
         return {
-            "status": "success",
+            "success": True,
             "project_id": log.project_id,
+            "token_type": log.token_type,
             "tokens_used": log.tokens_used,
             "logged_at": timestamp
         }
@@ -46,7 +47,7 @@ def get_usage_logs(project_id: str) -> List[UsageLogOut]:
     try:
         cur = db.execute(
             """
-            SELECT id, api_key_id, project_id, endpoint, token_type, tokens_used, success, timestamp, price_per_1k
+            SELECT id, api_key_id, project_id, endpoint, token_type, tokens_used, timestamp, price_per_1k
             FROM usage_logs WHERE project_id = ? ORDER BY timestamp DESC
             """,
             (project_id,)
@@ -60,9 +61,8 @@ def get_usage_logs(project_id: str) -> List[UsageLogOut]:
                 endpoint=row[3],
                 token_type=row[4],
                 tokens_used=row[5],
-                success=bool(row[6]),
-                timestamp=row[7],
-                price_per_1k=row[8]
+                timestamp=row[6],
+                price_per_1k=row[7]
             ) for row in rows
         ]
     except Exception as e:
