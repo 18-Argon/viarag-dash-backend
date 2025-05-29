@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class UsageLogCreate(BaseModel):
-    api_key_id: str
+    key: str
     # project_id: str
     endpoint: str
     token_type: str

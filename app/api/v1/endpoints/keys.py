@@ -71,7 +71,7 @@ async def validate_api_key_internal(
 
     return {
         "valid": True,
-        # "api_key_id": row["id"],
+        "api_key_id": row["id"],
         "project_id": row["project_id"],
         "created_at": row["created_at"],
     }

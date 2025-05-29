@@ -12,15 +12,14 @@ def log_usage(log: UsageLogCreate):
     try:
         timestamp = datetime.utcnow().isoformat()
 
-        # Resolve project_id from api_key_id
+        # Resolve API key metadata
         cursor = db.execute(
-            "SELECT project_id FROM api_keys WHERE id = ?",
-            (log.api_key_id,)
+            "SELECT id AS api_key_id, project_id FROM api_keys WHERE key = ? AND is_active = 1",
+            (log.key,)  # ← make sure this is a single-element tuple
         )
         row = cursor.fetchone()
         if not row:
-            raise HTTPException(status_code=404, detail="API key not found")
-        project_id = row["project_id"]
+            raise HTTPException(status_code=404, detail="API key not found or inactive")
 
         price_per_1k = get_current_rate(token_type=log.token_type, endpoint=log.endpoint)
 
@@ -33,7 +32,7 @@ def log_usage(log: UsageLogCreate):
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                log.api_key_id, project_id, log.endpoint, log.token_type,
+                row["api_key_id"], row["project_id"], log.endpoint, log.token_type,
                 log.tokens_used, timestamp, price_per_1k
             )
         )
@@ -41,7 +40,7 @@ def log_usage(log: UsageLogCreate):
 
         return {
             "success": True,
-            "project_id": project_id,
+            "project_id": row["project_id"],
             "token_type": log.token_type,
             "tokens_used": log.tokens_used,
             "logged_at": timestamp
