@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS usage_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    api_key_id TEXT,
-    project_id TEXT,
+    api_key_id TEXT NOT NULL,
+    project_id TEXT NOT NULL,
     endpoint TEXT NOT NULL,
     token_type TEXT,
     tokens_used INTEGER NOT NULL,

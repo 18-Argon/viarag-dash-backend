@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS api_keys (
     id TEXT PRIMARY KEY,
-    project_id TEXT UNIQUE NOT NULL,
+    project_id TEXT NOT NULL,
     key TEXT UNIQUE NOT NULL,
     name TEXT,
     is_active BOOLEAN DEFAULT 1,

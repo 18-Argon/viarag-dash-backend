@@ -11,30 +11,42 @@ def log_usage(log: UsageLogCreate):
     db = get_connection()
     try:
         timestamp = datetime.utcnow().isoformat()
+
+        # Resolve project_id from api_key_id
+        cursor = db.execute(
+            "SELECT project_id FROM api_keys WHERE id = ?",
+            (log.api_key_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="API key not found")
+        project_id = row["project_id"]
+
         price_per_1k = get_current_rate(token_type=log.token_type, endpoint=log.endpoint)
+
         db.execute(
             """
-            INSERT
-            INTO
-            usage_logs(
+            INSERT INTO usage_logs (
                 api_key_id, project_id, endpoint, token_type, tokens_used,
                 timestamp, price_per_1k
             )
-            VALUES(?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                log.api_key_id, log.project_id, log.endpoint, log.token_type,
+                log.api_key_id, project_id, log.endpoint, log.token_type,
                 log.tokens_used, timestamp, price_per_1k
             )
         )
         db.commit()
+
         return {
             "success": True,
-            "project_id": log.project_id,
+            "project_id": project_id,
             "token_type": log.token_type,
             "tokens_used": log.tokens_used,
             "logged_at": timestamp
         }
+
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))

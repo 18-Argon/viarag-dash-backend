@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Path, Depends, HTTPException, status
+from fastapi import APIRouter, Path, Depends, HTTPException, status, Query
 from app.models.api_key_model import APIKeyOut
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_internal_auth
 from app.db.session import get_connection  # ✅ Your DB connection helper
 import uuid
 import datetime
@@ -43,4 +43,35 @@ async def create_key(project_id: str, current_user=Depends(get_current_user)):
         "name": name,
         "is_active": is_active,
         "created_at": created_at
+    }
+
+
+@router.get("/validate-key", response_model=dict, dependencies=[Depends(require_internal_auth)])
+async def validate_api_key_internal(
+    key: str = Query(...)
+):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT id, project_id, is_active, created_at
+        FROM api_keys
+        WHERE key = ?
+        """,
+        (key,)
+    )
+    row = cursor.fetchone()
+
+    if not row:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    if not row["is_active"]:
+        raise HTTPException(status_code=403, detail="API key is inactive")
+
+    return {
+        "valid": True,
+        # "api_key_id": row["id"],
+        "project_id": row["project_id"],
+        "created_at": row["created_at"],
     }

@@ -12,7 +12,9 @@ def run_sql_file(conn, filepath):
 def initialize(DATABASE_PATH):
     conn = sqlite3.connect(DATABASE_PATH)
     for sql_file in ["users.sql", "projects.sql", "api_keys.sql", "usage_logs.sql", "rag_docs.sql"]:
+        print(f"\n--- Running {sql_file} ---")
         run_sql_file(conn, os.path.join(SCHEMA_DIR, sql_file))
+    print()
     conn.commit()
     conn.close()
     print("Database initialized.")
