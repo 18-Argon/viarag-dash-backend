@@ -1,2 +1,0 @@
-cd firebase_emul
-firebase emulators:start

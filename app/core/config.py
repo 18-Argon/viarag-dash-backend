@@ -6,7 +6,6 @@ load_dotenv()
 
 DATABASE_PATH = "./db/viarag.db"
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATABASE_PATH}")
-FIREBASE_CREDENTIAL_PATH = os.getenv("FIREBASE_CREDENTIAL_PATH", "firebase-admin-key.json")
 INTERNAL_BILLING_SECRET = os.getenv("INTERNAL_BILLING_SECRET", "<KEY>")
 
 def initialize_db():
